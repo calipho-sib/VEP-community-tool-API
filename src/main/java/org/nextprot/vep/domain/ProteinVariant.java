@@ -1,4 +1,6 @@
-package org.nextprot.vep;
+package org.nextprot.vep.domain;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Represents a single variant position on a protein
@@ -7,8 +9,10 @@ public class ProteinVariant {
 
     private int position;
 
+    @JsonProperty("original-amino-acid")
     private String originalAminoAcid;
 
+    @JsonProperty("variant-amino-acid")
     private String variantAminoAcid;
 
     private float SIFT;

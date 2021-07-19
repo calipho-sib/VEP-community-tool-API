@@ -1,0 +1,20 @@
+{
+	"info": {
+		"_postman_id": "e2641e33-4e25-4b82-aabc-7276a0916ced",
+		"name": "neXtProt VEP API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get SIFT and Polyphen for given variants",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		}
+	]
+}
