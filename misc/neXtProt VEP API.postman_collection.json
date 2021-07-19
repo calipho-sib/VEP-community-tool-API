@@ -10,8 +10,24 @@
 			"request": {
 				"method": "POST",
 				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"isoform\" : \"NX_ASPIP\",\n    \"variants\" : [\n        {\n            \"position\" : 2,\n            \"original-amino-acid\" : \"A\",\n            \"variant-amino-acid\" : \"L\"\n        },\n        {\n            \"position\" : 3,\n            \"original-amino-acid\" : \"T\",\n            \"variant-amino-acid\" : \"L\"\n        }\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
-					"raw": ""
+					"raw": "localhost:8080/vep-results",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"vep-results"
+					]
 				}
 			},
 			"response": []
