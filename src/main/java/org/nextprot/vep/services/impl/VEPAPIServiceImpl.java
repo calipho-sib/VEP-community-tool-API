@@ -7,7 +7,8 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.nextprot.vep.ProteinVariant;
+
+import org.nextprot.vep.domain.ProteinVariant;
 import org.nextprot.vep.services.VEPAPIService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.json.JacksonJsonParser;

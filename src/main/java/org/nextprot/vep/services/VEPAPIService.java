@@ -1,6 +1,6 @@
 package org.nextprot.vep.services;
 
-import org.nextprot.vep.ProteinVariant;
+import org.nextprot.vep.domain.ProteinVariant;
 
 import java.util.List;
 
