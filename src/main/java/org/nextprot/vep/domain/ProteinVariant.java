@@ -3,11 +3,13 @@ package org.nextprot.vep.domain;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Represents a single variant position on a protein
+ * Represents a single variant position on a nextprot isoform
  */
 public class ProteinVariant {
 
-    private int position;
+    private int nextprotPosition;
+
+    private int enspPosition;
 
     @JsonProperty("original-amino-acid")
     private String originalAminoAcid;
@@ -20,13 +22,17 @@ public class ProteinVariant {
     private float polyphen;
 
     public ProteinVariant(int position, String originalAminoAcid, String variantAminoAcid) {
-        this.position = position;
+        this.nextprotPosition = position;
         this.originalAminoAcid = originalAminoAcid;
         this.variantAminoAcid = variantAminoAcid;
     }
 
-    public int getPosition() {
-        return this.position;
+    public int getNextprotPosition() {
+        return this.nextprotPosition;
+    }
+
+    public int getEnspPosition() {
+        return this.enspPosition;
     }
 
     public String getOriginalAminoAcid() {
@@ -45,6 +51,10 @@ public class ProteinVariant {
         return this.polyphen;
     }
 
+    public void setEnspPosition(int enspPosition) {
+        this.enspPosition = enspPosition;
+    }
+
     public void setSIFT(float SIFT) {
         this.SIFT = SIFT;
     }
@@ -52,4 +62,5 @@ public class ProteinVariant {
     public void setPolyphen(float polyphen) {
         this.polyphen = polyphen;
     }
+
 }
