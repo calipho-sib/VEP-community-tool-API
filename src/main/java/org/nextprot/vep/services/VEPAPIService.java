@@ -9,5 +9,5 @@ import java.util.List;
  */
 public interface VEPAPIService {
 
-    List<ProteinVariant> getVEPResults();
+    List<ProteinVariant> getVEPResults(String isoform, List<ProteinVariant> variants);
 }
