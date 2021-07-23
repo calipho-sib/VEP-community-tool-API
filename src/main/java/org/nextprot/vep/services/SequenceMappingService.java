@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface SequenceMappingService {
 
-    List<ProteinVariant> getENSPMapping(List<ProteinVariant> variants);
+    List<ProteinVariant> getENSPMapping(String isoform, List<ProteinVariant> variants);
 }
