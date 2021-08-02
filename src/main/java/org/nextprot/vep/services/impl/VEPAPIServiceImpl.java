@@ -64,6 +64,7 @@ public class VEPAPIServiceImpl implements VEPAPIService {
             // Compute the ensembl position
             int ensemblPosition = nextprotPosition + mappingProfile.getOffset();
             String enspHGVS = "\"" + ensp + ".1:p." + "Met" + ensemblPosition + "Ser" + "\"";
+            enspHGVS = "\"ENSP00000374828.2:p.Asn2Met\"";
             ensps.add(enspHGVS);
             proteinVariantMap.put(enspHGVS, variant);
             break;
