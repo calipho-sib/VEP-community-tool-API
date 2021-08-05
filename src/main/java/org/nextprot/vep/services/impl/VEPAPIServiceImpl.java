@@ -13,6 +13,7 @@ import org.nextprot.vep.domain.SequenceMappingProfile;
 import org.nextprot.vep.services.SequenceMappingService;
 import org.nextprot.vep.services.VEPAPIService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.json.JacksonJsonParser;
 import org.springframework.boot.json.JsonParser;
@@ -27,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@Qualifier("APIService")
 public class VEPAPIServiceImpl implements VEPAPIService {
 
     private CloseableHttpClient httpClient;

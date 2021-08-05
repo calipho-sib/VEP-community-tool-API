@@ -4,6 +4,7 @@ import org.nextprot.vep.domain.ProteinVariant;
 import org.nextprot.vep.domain.ProteinVariantRequest;
 import org.nextprot.vep.services.VEPAPIService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,6 +18,7 @@ import java.util.List;
 @RestController
 public class VEPController {
 
+    @Qualifier("LocalService")
     @Autowired
     VEPAPIService vepapiService;
 
