@@ -18,7 +18,7 @@ import java.util.List;
 @RestController
 public class VEPController {
 
-    @Qualifier("LocalService")
+    @Qualifier("APIService")
     @Autowired
     VEPAPIService vepapiService;
 

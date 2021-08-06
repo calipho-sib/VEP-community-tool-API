@@ -10,6 +10,7 @@ import org.apache.http.util.EntityUtils;
 
 import org.nextprot.vep.domain.ProteinVariant;
 import org.nextprot.vep.domain.SequenceMappingProfile;
+import org.nextprot.vep.services.AminoAcidService;
 import org.nextprot.vep.services.SequenceMappingService;
 import org.nextprot.vep.services.VEPAPIService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +42,9 @@ public class VEPAPIServiceImpl implements VEPAPIService {
     @Autowired
     SequenceMappingService sequenceMappingService;
 
+    @Autowired
+    AminoAcidService aminoAcidService;
+
     @PostConstruct
     void initialize() {
         httpClient = HttpClients.createDefault();
@@ -58,22 +62,25 @@ public class VEPAPIServiceImpl implements VEPAPIService {
         // Maps the nextprot isoform positions into ENSP HGVS identifiers
         Map<String, ProteinVariant> proteinVariantMap = new HashMap<>();
         List<String> ensps = new ArrayList<>();
-        for(ProteinVariant variant : variants) {
+        for (ProteinVariant variant : variants) {
             String originalAminoAcid = variant.getOriginalAminoAcid();
             String variantAminoAcid = variant.getVariantAminoAcid();
             int nextprotPosition = variant.getNextprotPosition();
 
             // Compute the ensembl position
             int ensemblPosition = nextprotPosition + mappingProfile.getOffset();
-            String enspHGVS = "\"" + ensp + ".1:p." + "Met" + ensemblPosition + "Ser" + "\"";
-            enspHGVS = "\"ENSP00000374828.2:p.Asn2Met\"";
+            String enspHGVS = null;
+            try {
+                enspHGVS = "\"" + ensp + ".1:p." + aminoAcidService.getThreeLetterCode(originalAminoAcid) + ensemblPosition + aminoAcidService.getThreeLetterCode(variantAminoAcid) + "\"";
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             ensps.add(enspHGVS);
             proteinVariantMap.put(enspHGVS, variant);
-            break;
         }
 
         // Calls the VEP API to get the SIFT and Polyphen results
-        List<Object> VEPResponse;
+        List<Object> VEPResponse = null;
         try {
             String payload = getPayload(ensps);
             httpPost.setEntity(new StringEntity(payload));
@@ -90,11 +97,9 @@ public class VEPAPIServiceImpl implements VEPAPIService {
         }
 
         // Adds the SIFT and polyphen values to the variants
-        /*for(Object vepResponse: VEPResponse) {
-            vepResponse
-            ProteinVariant variant = proteinVariantMap.get(ensgHGVS);
+        for (Object vepResponse : VEPResponse) {
 
-        }*/
+        }
 
         return null;
     }
