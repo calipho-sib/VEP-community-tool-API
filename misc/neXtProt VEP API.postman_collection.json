@@ -12,7 +12,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"isoform\" : \"NX_ASPIP\",\n    \"variants\" : [\n        {\n            \"position\" : 2,\n            \"original-amino-acid\" : \"A\",\n            \"variant-amino-acid\" : \"L\"\n        },\n        {\n            \"position\" : 3,\n            \"original-amino-acid\" : \"T\",\n            \"variant-amino-acid\" : \"L\"\n        }\n    ]\n}",
+					"raw": "{\n    \"isoform\" : \"NX_P52701-1\",\n    \"variants\" : [\n        {\n            \"position\" : 2,\n            \"original-amino-acid\" : \"S\",\n            \"variant-amino-acid\" : \"L\"\n        },\n        {\n            \"position\" : 4,\n            \"original-amino-acid\" : \"Q\",\n            \"variant-amino-acid\" : \"E\"\n        }\n    ]\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -27,6 +27,25 @@
 					"port": "8080",
 					"path": [
 						"vep-results"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "localhost:8080/mapping-isoforms/NX_P52701",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/mapping-isoforms/NX_P52701",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"mapping-isoforms",
+						"NX_P52701"
 					]
 				}
 			},
