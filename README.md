@@ -15,3 +15,30 @@ Run the service on Linux
 
 ## Endpoints
 Please refer to the postman collection.
+
+## Example Usage
+
+1. VEP Results
+
+POST /vep-results
+payload
+``
+{
+    "isoform" : "NX_P52701-1",
+    "variants" : [
+        {
+            "position" : 2,
+            "original-amino-acid" : "S",
+            "variant-amino-acid" : "L"
+        },
+        {
+            "position" : 96,
+            "original-amino-acid" : "V",
+            "variant-amino-acid" : "L"
+        }
+    ]`
+}
+``
+
+2. Mapping isoform service
+GET /mapping-isoforms/{entry}
