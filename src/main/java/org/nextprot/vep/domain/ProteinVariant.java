@@ -17,9 +17,13 @@ public class ProteinVariant {
     @JsonProperty("variant-amino-acid")
     private String variantAminoAcid;
 
-    private float SIFT;
+    private double SIFT;
 
-    private float polyphen;
+    private double polyphen;
+
+    private String SIFTPrediction;
+
+    private String polyphenPrediction;
 
     public ProteinVariant(int position, String originalAminoAcid, String variantAminoAcid) {
         this.nextprotPosition = position;
@@ -43,24 +47,31 @@ public class ProteinVariant {
         return  this.variantAminoAcid;
     }
 
-    public float getSIFT() {
+    public double getSIFT() {
         return this.SIFT;
     }
 
-    public float getPolyphen(){
+    public double getPolyphen(){
         return this.polyphen;
     }
+
+    public String getSIFTPrediction() { return this.SIFTPrediction; }
+
+    public String getPolyphenPrediction() { return this.polyphenPrediction; }
 
     public void setEnspPosition(int enspPosition) {
         this.enspPosition = enspPosition;
     }
 
-    public void setSIFT(float SIFT) {
+    public void setSIFT(double SIFT) {
         this.SIFT = SIFT;
     }
 
-    public void setPolyphen(float polyphen) {
+    public void setPolyphen(double polyphen) {
         this.polyphen = polyphen;
     }
 
+    public void setSIFTPrediction(String SIFTPrediction) { this.SIFTPrediction = SIFTPrediction; }
+
+    public void setPolyphenPrediction(String polyphenPrediction) { this.polyphenPrediction = polyphenPrediction; }
 }

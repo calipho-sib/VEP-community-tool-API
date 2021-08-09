@@ -23,10 +23,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @Qualifier("APIService")
@@ -69,14 +66,14 @@ public class VEPAPIServiceImpl implements VEPAPIService {
 
             // Compute the ensembl position
             int ensemblPosition = nextprotPosition + mappingProfile.getOffset();
-            String enspHGVS = null;
             try {
-                enspHGVS = "\"" + ensp + ".1:p." + aminoAcidService.getThreeLetterCode(originalAminoAcid) + ensemblPosition + aminoAcidService.getThreeLetterCode(variantAminoAcid) + "\"";
+                String enspString = ensp + ".1:p." + aminoAcidService.getThreeLetterCode(originalAminoAcid) + ensemblPosition + aminoAcidService.getThreeLetterCode(variantAminoAcid);
+                String enspHGVS = "\"" + enspString + "\"";
+                ensps.add(enspHGVS);
+                proteinVariantMap.put(enspString, variant);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            ensps.add(enspHGVS);
-            proteinVariantMap.put(enspHGVS, variant);
         }
 
         // Calls the VEP API to get the SIFT and Polyphen results
@@ -98,10 +95,25 @@ public class VEPAPIServiceImpl implements VEPAPIService {
 
         // Adds the SIFT and polyphen values to the variants
         for (Object vepResponse : VEPResponse) {
+            Optional<Object> consequence = ((List)((Map)vepResponse).get("transcript_consequences"))
+                    .stream()
+                    .filter(item -> "protein_coding".equals(((Map)item).get("biotype")) && ((List)((Map)item).get("consequence_terms")).contains("missense_variant") )
+                    .findFirst();
+            if(consequence.isPresent()) {
+                Map consequenceMap = (Map) consequence.get();
+                double siftScore = (double) consequenceMap.get("sift_score");
+                String siftPrediction = (String) consequenceMap.get("sift_prediction");
+                double polyphenScore = (double) consequenceMap.get("polyphen_score");
+                String polyphenPrediction = (String) consequenceMap.get("polyphen_prediction");
 
+                proteinVariantMap.get(((Map)vepResponse).get("id")).setSIFT(siftScore);
+                proteinVariantMap.get(((Map)vepResponse).get("id")).setSIFTPrediction(siftPrediction);
+                proteinVariantMap.get(((Map)vepResponse).get("id")).setPolyphen(polyphenScore);
+                proteinVariantMap.get(((Map)vepResponse).get("id")).setPolyphenPrediction(polyphenPrediction);
+            }
         }
 
-        return null;
+        return new ArrayList<ProteinVariant>(proteinVariantMap.values());
     }
 
     private String getPayload(List<String> ensps) {
