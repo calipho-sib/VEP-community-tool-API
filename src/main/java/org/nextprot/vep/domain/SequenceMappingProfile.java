@@ -13,6 +13,8 @@ public class SequenceMappingProfile implements Serializable {
 
     String ensp;
 
+    String isoform;
+
     // Offset to be applied to get the mapped position
     // This is the mapping mechanism, when the nextprot sequence is a substring of ensp sequence
     private int offset;
@@ -21,9 +23,15 @@ public class SequenceMappingProfile implements Serializable {
         this.ensp = ensp;
     }
 
+    public void setIsoform(String isoform) {
+        this.isoform = isoform;
+    }
+
     public String getEnsp() {
         return this.ensp;
     }
+
+    public String getIsoform() { return this.isoform; }
 
     public void setOffset(int offset) {
         this.offset = offset;

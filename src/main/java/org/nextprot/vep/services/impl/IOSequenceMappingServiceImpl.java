@@ -91,6 +91,7 @@ public class IOSequenceMappingServiceImpl implements SequenceMappingService {
 
         SequenceMappingProfile sequenceMappingProfile = new SequenceMappingProfile();
         sequenceMappingProfile.setEnsp(enspMap.get(isoform));
+        sequenceMappingProfile.setIsoform(isoform);
         if(nextprotSequence.equals(enspSequence)) {
             sequenceMappingProfile.setOffset(0);
         } else if(enspSequence.contains(nextprotSequence)) {
