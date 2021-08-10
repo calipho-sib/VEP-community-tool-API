@@ -11,7 +11,7 @@ Install the dependencies
 `mvn install`
 
 Run the service on Linux
-`./mvnw spring-boot:run`
+`./mvnw -Dspring-boot.run.profiles=dev spring-boot:run`
 
 ## Endpoints
 Please refer to the postman collection.
