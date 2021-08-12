@@ -101,9 +101,28 @@ public class VEPAPIServiceImpl implements VEPAPIService {
                     .findFirst();
             if(consequence.isPresent()) {
                 Map consequenceMap = (Map) consequence.get();
-                double siftScore = (double) consequenceMap.get("sift_score");
+                double siftScore = 0;
+                if(consequenceMap.get("sift_score") != null) {
+                     if(consequenceMap.get("sift_score").equals(0) || consequenceMap.get("sift_score").equals(1)) {
+                         siftScore = (Integer) consequenceMap.get("sift_score");
+                     } else {
+                         siftScore = (double) consequenceMap.get("sift_score");
+                     }
+                } else {
+                    continue;
+                }
                 String siftPrediction = (String) consequenceMap.get("sift_prediction");
-                double polyphenScore = (double) consequenceMap.get("polyphen_score");
+
+                double polyphenScore = 0;
+                if(consequenceMap.get("polyphen_score") != null) {
+                    if( consequenceMap.get("polyphen_score").equals(0) || consequenceMap.get("polyphen_score").equals(1)) {
+                        polyphenScore = (Integer) consequenceMap.get("polyphen_score");
+                    } else {
+                        polyphenScore = (double) consequenceMap.get("polyphen_score");
+                    }
+                } else {
+                    continue;
+                }
                 String polyphenPrediction = (String) consequenceMap.get("polyphen_prediction");
 
                 proteinVariantMap.get(((Map)vepResponse).get("id")).setSIFT(siftScore);
