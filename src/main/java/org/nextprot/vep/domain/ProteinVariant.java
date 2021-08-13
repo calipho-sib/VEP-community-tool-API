@@ -11,10 +11,8 @@ public class ProteinVariant {
 
     private int enspPosition;
 
-    @JsonProperty("original-amino-acid")
     private String originalAminoAcid;
 
-    @JsonProperty("variant-amino-acid")
     private String variantAminoAcid;
 
     private double SIFT;
