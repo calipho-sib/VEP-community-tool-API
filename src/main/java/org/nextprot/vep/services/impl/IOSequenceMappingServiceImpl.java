@@ -2,9 +2,15 @@ package org.nextprot.vep.services.impl;
 
 import org.nextprot.vep.domain.SequenceMappingProfile;
 import org.nextprot.vep.services.SequenceMappingService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ResourceUtils;
 
 import javax.annotation.PostConstruct;
 import java.io.*;
@@ -18,8 +24,13 @@ import java.util.stream.Collectors;
 @Service
 public class IOSequenceMappingServiceImpl implements SequenceMappingService {
 
+    Logger logger = LoggerFactory.getLogger(IOSequenceMappingServiceImpl.class);
+
     @Value("${SEQUENCE_DATA_FILE}")
     private String sequenceDataFilename;
+
+    @Autowired
+    ResourceLoader resourceLoader;
 
     // Map to keep the sequences for isoforms
     private Map<String, String[]> sequenceMap = new HashMap<>();
@@ -30,14 +41,17 @@ public class IOSequenceMappingServiceImpl implements SequenceMappingService {
     // Map to keep isoforms for entries
     private Map<String, List<String>> entryIsoformMap = new HashMap<>();
 
+
     @PostConstruct
     /**
      * Loads nextprot and ENSP sequence data from a CSV file and maintain it in memory for mapping
      */
     public void loadENSPData() {
         try {
-            File sequenceDataFile = new File(this.getClass().getClassLoader().getResource(sequenceDataFilename).toURI());
-            BufferedReader bufferedInputStream = new BufferedReader(new FileReader(sequenceDataFile));
+
+            logger.info("Loading data from " + sequenceDataFilename);
+            Resource resource = resourceLoader.getResource("classpath:" + sequenceDataFilename);
+            BufferedReader bufferedInputStream = new BufferedReader(new InputStreamReader(resource.getInputStream()));
             String sequenceData = null;
             int loadedIsoforms = 0;
             while((sequenceData =  bufferedInputStream.readLine()) != null) {
@@ -68,8 +82,8 @@ public class IOSequenceMappingServiceImpl implements SequenceMappingService {
 
                 loadedIsoforms++;
             }
-            System.out.println("Loaded isoforms " + loadedIsoforms);
-        } catch (URISyntaxException | FileNotFoundException e) {
+            logger.info("Loaded isoforms " + loadedIsoforms);
+        } catch ( FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();

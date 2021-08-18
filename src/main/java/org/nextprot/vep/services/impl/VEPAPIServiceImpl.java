@@ -13,6 +13,8 @@ import org.nextprot.vep.domain.SequenceMappingProfile;
 import org.nextprot.vep.services.AminoAcidService;
 import org.nextprot.vep.services.SequenceMappingService;
 import org.nextprot.vep.services.VEPAPIService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,10 +26,13 @@ import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Qualifier("APIService")
 public class VEPAPIServiceImpl implements VEPAPIService {
+
+    Logger logger = LoggerFactory.getLogger(VEPAPIServiceImpl.class);
 
     private CloseableHttpClient httpClient;
 
@@ -52,6 +57,11 @@ public class VEPAPIServiceImpl implements VEPAPIService {
 
     @Override
     public List<ProteinVariant> getVEPResults(String isoform, List<ProteinVariant> variants) {
+
+        String logString = String.join(",", variants.stream()
+                .map(variant -> variant.getOriginalAminoAcid() + "->" + variant.getVariantAminoAcid())
+                .collect(Collectors.toList()));
+
         // Call the mapping service to get the ENSP mappings
         SequenceMappingProfile mappingProfile = sequenceMappingService.getMappingProfile(isoform);
         String ensp = mappingProfile.getEnsp();
@@ -72,6 +82,7 @@ public class VEPAPIServiceImpl implements VEPAPIService {
                 ensps.add(enspHGVS);
                 proteinVariantMap.put(enspString, variant);
             } catch (Exception e) {
+                logger.error(e.getMessage());
                 e.printStackTrace();
             }
         }
@@ -132,7 +143,8 @@ public class VEPAPIServiceImpl implements VEPAPIService {
             }
         }
 
-        return new ArrayList<ProteinVariant>(proteinVariantMap.values());
+        logger.info("Succesfully computed VEP results for variants: " + logString);
+        return new ArrayList<>(proteinVariantMap.values());
     }
 
     private String getPayload(List<String> ensps) {
