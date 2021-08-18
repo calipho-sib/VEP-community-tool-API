@@ -7,11 +7,18 @@ This is a spring boot based REST API built with maven.
 
 ## Starting the service
 
-Install the dependencies
+### Install the dependencies
 `mvn install`
 
 Run the service on Linux
 `./mvnw -Dspring-boot.run.profiles=dev spring-boot:run`
+
+### Package
+`mvn package spring-boot:repackage -DskipTests -Dspring-boot.run.profiles=dev|prod`
+
+### Start
+With the packaged Jar file
+`java -jar -Dspring.profiles.active=dev -Dserver.port=9000 vep-0.0.1-SNAPSHOT.jar`
 
 ## Endpoints
 Please refer to the postman collection.
