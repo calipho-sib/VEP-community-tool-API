@@ -32,6 +32,7 @@ public class AminoAcidServiceImpl implements AminoAcidService {
         aminoAcids.put("S", "Ser");
         aminoAcids.put("T", "Thr");
         aminoAcids.put("W", "Trp");
+        aminoAcids.put("Y", "Tyr");
         aminoAcids.put("V", "Val");
         aminoAcids.put("B", "Asx");
         aminoAcids.put("Z", "Glx");
@@ -41,7 +42,7 @@ public class AminoAcidServiceImpl implements AminoAcidService {
 
     @Override
     public String getThreeLetterCode(String aminoAcidOneLetterCode) throws Exception {
-        String code = aminoAcids.get(aminoAcidOneLetterCode);
+        String code = aminoAcids.get(aminoAcidOneLetterCode.trim());
         if(code == null) {
             throw new Exception("Invalid Amino Acid Code");
         } else {

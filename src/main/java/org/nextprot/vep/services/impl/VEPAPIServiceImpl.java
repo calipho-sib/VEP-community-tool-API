@@ -96,15 +96,16 @@ public class VEPAPIServiceImpl implements VEPAPIService {
             String jsonResponse = EntityUtils.toString(response.getEntity());
             JsonParser jsonParser = new JacksonJsonParser();
             VEPResponse = jsonParser.parseList(jsonResponse);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        } catch (ClientProtocolException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         // Adds the SIFT and polyphen values to the variants
+        if(VEPResponse == null) {
+            logger.error("Could not get the response from ensembl");
+            return null;
+        }
+
         for (Object vepResponse : VEPResponse) {
             Optional<Object> consequence = ((List)((Map)vepResponse).get("transcript_consequences"))
                     .stream()
