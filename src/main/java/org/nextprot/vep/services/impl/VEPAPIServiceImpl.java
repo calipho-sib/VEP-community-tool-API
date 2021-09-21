@@ -1,6 +1,5 @@
 package org.nextprot.vep.services.impl;
 
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -24,7 +23,6 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -94,18 +92,24 @@ public class VEPAPIServiceImpl implements VEPAPIService {
             httpPost.setEntity(new StringEntity(payload));
             CloseableHttpResponse response = httpClient.execute(httpPost);
             String jsonResponse = EntityUtils.toString(response.getEntity());
+
             JsonParser jsonParser = new JacksonJsonParser();
+            // It can return error instead of a list of predictions
+            if(jsonResponse.contains("error")) {
+                logger.error(jsonParser.parseMap(jsonResponse).get("error").toString());
+                return new ArrayList<>();
+            }
             VEPResponse = jsonParser.parseList(jsonResponse);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        // Adds the SIFT and polyphen values to the variants
         if(VEPResponse == null) {
             logger.error("Could not get the response from ensembl");
-            return null;
+            return new ArrayList<>();
         }
 
+        // Adds the SIFT and polyphen values to the variants
         for (Object vepResponse : VEPResponse) {
             Optional<Object> consequence = ((List)((Map)vepResponse).get("transcript_consequences"))
                     .stream()
@@ -113,7 +117,7 @@ public class VEPAPIServiceImpl implements VEPAPIService {
                     .findFirst();
             if(consequence.isPresent()) {
                 Map consequenceMap = (Map) consequence.get();
-                double siftScore = 0;
+                double siftScore = -1;
                 if(consequenceMap.get("sift_score") != null) {
                      if(consequenceMap.get("sift_score").equals(0) || consequenceMap.get("sift_score").equals(1)) {
                          siftScore = (Integer) consequenceMap.get("sift_score");
@@ -125,7 +129,7 @@ public class VEPAPIServiceImpl implements VEPAPIService {
                 }
                 String siftPrediction = (String) consequenceMap.get("sift_prediction");
 
-                double polyphenScore = 0;
+                double polyphenScore = -1;
                 if(consequenceMap.get("polyphen_score") != null) {
                     if( consequenceMap.get("polyphen_score").equals(0) || consequenceMap.get("polyphen_score").equals(1)) {
                         polyphenScore = (Integer) consequenceMap.get("polyphen_score");
@@ -137,8 +141,8 @@ public class VEPAPIServiceImpl implements VEPAPIService {
                 }
                 String polyphenPrediction = (String) consequenceMap.get("polyphen_prediction");
 
-                proteinVariantMap.get(((Map)vepResponse).get("id")).setSIFT(siftScore);
-                proteinVariantMap.get(((Map)vepResponse).get("id")).setSIFTPrediction(siftPrediction);
+                proteinVariantMap.get(((Map)vepResponse).get("id")).setSift(siftScore);
+                proteinVariantMap.get(((Map)vepResponse).get("id")).setSiftPrediction(siftPrediction);
                 proteinVariantMap.get(((Map)vepResponse).get("id")).setPolyphen(polyphenScore);
                 proteinVariantMap.get(((Map)vepResponse).get("id")).setPolyphenPrediction(polyphenPrediction);
             }

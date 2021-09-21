@@ -1,7 +1,5 @@
 package org.nextprot.vep.domain;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 /**
  * Represents a single variant position on a nextprot isoform
  */
@@ -15,11 +13,11 @@ public class ProteinVariant {
 
     private String variantAminoAcid;
 
-    private double SIFT;
+    private double sift = -1;
 
-    private double polyphen;
+    private double polyphen = -1;
 
-    private String SIFTPrediction;
+    private String siftPrediction;
 
     private String polyphenPrediction;
 
@@ -45,15 +43,15 @@ public class ProteinVariant {
         return  this.variantAminoAcid;
     }
 
-    public double getSIFT() {
-        return this.SIFT;
+    public double getSift() {
+        return this.sift;
     }
 
     public double getPolyphen(){
         return this.polyphen;
     }
 
-    public String getSIFTPrediction() { return this.SIFTPrediction; }
+    public String getSiftPrediction() { return this.siftPrediction; }
 
     public String getPolyphenPrediction() { return this.polyphenPrediction; }
 
@@ -61,15 +59,15 @@ public class ProteinVariant {
         this.enspPosition = enspPosition;
     }
 
-    public void setSIFT(double SIFT) {
-        this.SIFT = SIFT;
+    public void setSift(double sift) {
+        this.sift = sift;
     }
 
     public void setPolyphen(double polyphen) {
         this.polyphen = polyphen;
     }
 
-    public void setSIFTPrediction(String SIFTPrediction) { this.SIFTPrediction = SIFTPrediction; }
+    public void setSiftPrediction(String siftPrediction) { this.siftPrediction = siftPrediction; }
 
     public void setPolyphenPrediction(String polyphenPrediction) { this.polyphenPrediction = polyphenPrediction; }
 }
