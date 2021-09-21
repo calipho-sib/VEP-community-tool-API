@@ -19,8 +19,9 @@ public class AminoAcidServiceImpl implements AminoAcidService {
         aminoAcids.put("N", "Asn");
         aminoAcids.put("D", "Asp");
         aminoAcids.put("C", "Cys");
-        aminoAcids.put("Q", "Ala");
+        aminoAcids.put("Q", "Gln");
         aminoAcids.put("E", "Glu");
+        aminoAcids.put("G", "Gly");
         aminoAcids.put("H", "His");
         aminoAcids.put("I", "Ile");
         aminoAcids.put("L", "Leu");
@@ -32,6 +33,10 @@ public class AminoAcidServiceImpl implements AminoAcidService {
         aminoAcids.put("T", "Thr");
         aminoAcids.put("W", "Trp");
         aminoAcids.put("V", "Val");
+        aminoAcids.put("B", "Asx");
+        aminoAcids.put("Z", "Glx");
+        aminoAcids.put("X", "Xaa");
+        aminoAcids.put("J", "Xle");
     }
 
     @Override
