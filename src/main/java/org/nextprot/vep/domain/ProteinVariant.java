@@ -21,7 +21,10 @@ public class ProteinVariant {
 
     private String polyphenPrediction;
 
-    public ProteinVariant(int position, String originalAminoAcid, String variantAminoAcid) {
+    private VariantType type;
+
+    public ProteinVariant(int position, VariantType type, String originalAminoAcid, String variantAminoAcid) {
+        this.type = type;
         this.nextprotPosition = position;
         this.originalAminoAcid = originalAminoAcid;
         this.variantAminoAcid = variantAminoAcid;

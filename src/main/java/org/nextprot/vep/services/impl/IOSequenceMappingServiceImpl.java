@@ -107,15 +107,19 @@ public class IOSequenceMappingServiceImpl implements SequenceMappingService {
         sequenceMappingProfile.setEnsp(enspMap.get(isoform));
         sequenceMappingProfile.setIsoform(isoform);
         if(nextprotSequence.equals(enspSequence)) {
+            logger.info("NP seq length " + nextprotSequence.length() + " ENSP seq length " + enspSequence);
             sequenceMappingProfile.setOffset(0);
         } else if(enspSequence.contains(nextprotSequence)) {
-            // Nextprot sequence is a substring of ensp sequence
+            // ensp sequence is a substring of nextprot sequence
+            logger.info("NP seq length " + nextprotSequence.length() + " ENSP seq length " + enspSequence);
             sequenceMappingProfile.setOffset(enspSequence.indexOf(nextprotSequence));
         } else if(nextprotSequence.contains(enspSequence)) {
             // Nextprot sequence is a substring of ensp sequence
+            logger.info("NP seq length " + nextprotSequence.length() + " ENSP seq length " + enspSequence);
             sequenceMappingProfile.setOffset(-1);
         } else {
-            sequenceMappingProfile.setOffset(-1);
+            logger.info("NP seq length " + nextprotSequence.length() + " ENSP seq length " + enspSequence);
+            sequenceMappingProfile.setOffset(-2);
         }
 
         return sequenceMappingProfile;
@@ -124,9 +128,16 @@ public class IOSequenceMappingServiceImpl implements SequenceMappingService {
     @Override
     @Cacheable(key= "#entry", sync = true)
     public List<SequenceMappingProfile> getMappingProfiles(String entry) {
-        return entryIsoformMap.get(entry)
-                .stream()
-                .map(isoform -> getMappingProfile(isoform))
-                .collect(Collectors.toList());
+        List<String> isoforms = entryIsoformMap.get(entry);
+        if(isoforms == null) {
+            logger.info("No isoforms found for the given entry " + entry);
+            return new ArrayList<>();
+        } else {
+            return entryIsoformMap.get(entry)
+                    .stream()
+                    .map(isoform -> getMappingProfile(isoform))
+                    .collect(Collectors.toList());
+        }
+
     }
 }
