@@ -39,6 +39,8 @@ public class VEPAPIServiceImpl implements VEPAPIService {
     @Value("${VEP_REST_ENDPOINT}")
     private String VEPRESTEndpoint;
 
+    private String AMINO_ACID_DELETION = "del";
+
     @Autowired
     SequenceMappingService sequenceMappingService;
 
@@ -75,7 +77,14 @@ public class VEPAPIServiceImpl implements VEPAPIService {
             // Compute the ensembl position
             int ensemblPosition = nextprotPosition + mappingProfile.getOffset();
             try {
-                String enspString = ensp + ".1:p." + aminoAcidService.getThreeLetterCode(originalAminoAcid) + ensemblPosition + aminoAcidService.getThreeLetterCode(variantAminoAcid);
+                String enspString = ensp + ".1:p." + aminoAcidService.getThreeLetterCode(originalAminoAcid) + ensemblPosition;
+                // Have to handle substitution and deletion
+                if(variantAminoAcid.equals(AMINO_ACID_DELETION)) {
+                    enspString += AMINO_ACID_DELETION;
+                } else {
+                    enspString += aminoAcidService.getThreeLetterCode(variantAminoAcid);
+                }
+
                 String enspHGVS = "\"" + enspString + "\"";
                 ensps.add(enspHGVS);
                 proteinVariantMap.put(enspString, variant);
