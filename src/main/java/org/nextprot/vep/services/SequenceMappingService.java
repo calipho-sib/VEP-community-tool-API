@@ -24,4 +24,10 @@ public interface SequenceMappingService {
      * @return List<SequenceMappingProfile>
      */
     List<SequenceMappingProfile> getMappingProfiles(String entry);
+
+    /**
+     * Returns the mapping profiles
+     * @return
+     */
+    String getAllMappingProfiles();
 }

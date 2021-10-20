@@ -138,6 +138,17 @@ public class IOSequenceMappingServiceImpl implements SequenceMappingService {
                     .map(isoform -> getMappingProfile(isoform))
                     .collect(Collectors.toList());
         }
+    }
 
+    /**
+     * Iterates over all the isoforms and determins if the nextprot and ENSP sequences are;
+     *  1. Exactly the same
+     *  2. neXtProt sequence is a subsequence of ENSP sequence
+     *  3. ENSP sequence sequence is a subsequence of neXtProt
+     *  3. Sequences don't match, hence to use the alignment algorithm
+     * @return Mapping profile as a CSV line
+     */
+    public String getAllMappingProfiles() {
+        return null;
     }
 }

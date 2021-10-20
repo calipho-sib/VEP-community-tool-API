@@ -45,4 +45,9 @@ public class VEPController {
     public List<SequenceMappingProfile> getMappableIsoforms(@PathVariable String entry) {
         return sequenceMappingService.getMappingProfiles(entry);
     }
+
+    @RequestMapping(value="/vep-api/mapping-profiles", produces = "application/text")
+    public String getAllMappingProfiles() {
+        return sequenceMappingService.getAllMappingProfiles();
+    }
 }
