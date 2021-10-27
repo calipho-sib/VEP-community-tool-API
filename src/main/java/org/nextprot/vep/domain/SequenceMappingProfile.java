@@ -19,6 +19,8 @@ public class SequenceMappingProfile implements Serializable {
     // This is the mapping mechanism, when the nextprot sequence is a substring of ensp sequence
     private int offset;
 
+    private String alignmentResults;
+
     public void setEnsp(String ensp) {
         this.ensp = ensp;
     }
@@ -39,6 +41,14 @@ public class SequenceMappingProfile implements Serializable {
 
     public int getOffset() {
         return this.offset;
+    }
+
+    public void setAlignmentResults(String results) {
+        this.alignmentResults = results;
+    }
+
+    public String getAlignmentResults() {
+        return this.alignmentResults;
     }
 
     public String toString() {
