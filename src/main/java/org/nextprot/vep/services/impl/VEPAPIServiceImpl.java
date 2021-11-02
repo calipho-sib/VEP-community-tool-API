@@ -120,6 +120,7 @@ public class VEPAPIServiceImpl implements VEPAPIService {
 
         // Adds the SIFT and polyphen values to the variants
         for (Object vepResponse : VEPResponse) {
+            System.out.println(vepResponse.toString());
             Optional<Object> consequence = ((List)((Map)vepResponse).get("transcript_consequences"))
                     .stream()
                     .filter(item -> "protein_coding".equals(((Map)item).get("biotype")) && ((List)((Map)item).get("consequence_terms")).contains("missense_variant") )
@@ -154,8 +155,15 @@ public class VEPAPIServiceImpl implements VEPAPIService {
                 proteinVariantMap.get(((Map)vepResponse).get("id")).setSiftPrediction(siftPrediction);
                 proteinVariantMap.get(((Map)vepResponse).get("id")).setPolyphen(polyphenScore);
                 proteinVariantMap.get(((Map)vepResponse).get("id")).setPolyphenPrediction(polyphenPrediction);
+                proteinVariantMap.get(((Map)vepResponse).get("id")).setStatus(ProteinVariant.RESULTS_FOUND);
             }
         }
+
+        // Append errors for the variants without consequence results from VEP
+        proteinVariantMap.values()
+                .stream()
+                .filter(variant -> variant.getStatus() == null)
+                .forEach(variant -> variant.setStatus(ProteinVariant.ERROR));
 
         logger.info("Succesfully computed VEP results for variants: " + logString);
         return new ArrayList<>(proteinVariantMap.values());

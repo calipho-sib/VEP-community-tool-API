@@ -23,6 +23,15 @@ public class ProteinVariant {
 
     private VariantType type;
 
+    private String status;
+
+    private String message;
+
+    public static String RESULTS_FOUND = "OK";
+
+    public static String ERROR = "ERROR";
+
+
     public ProteinVariant(int position, VariantType type, String originalAminoAcid, String variantAminoAcid) {
         this.type = type;
         this.nextprotPosition = position;
@@ -58,6 +67,10 @@ public class ProteinVariant {
 
     public String getPolyphenPrediction() { return this.polyphenPrediction; }
 
+    public String getStatus() {
+        return this.status;
+    }
+
     public void setEnspPosition(int enspPosition) {
         this.enspPosition = enspPosition;
     }
@@ -73,4 +86,8 @@ public class ProteinVariant {
     public void setSiftPrediction(String siftPrediction) { this.siftPrediction = siftPrediction; }
 
     public void setPolyphenPrediction(String polyphenPrediction) { this.polyphenPrediction = polyphenPrediction; }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 }
