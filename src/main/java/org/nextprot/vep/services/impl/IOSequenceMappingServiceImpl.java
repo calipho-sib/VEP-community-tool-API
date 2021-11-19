@@ -63,17 +63,38 @@ public class IOSequenceMappingServiceImpl implements SequenceMappingService {
             String sequenceData = null;
             int loadedIsoforms = 0;
             while((sequenceData =  bufferedInputStream.readLine()) != null) {
+                System.out.println(sequenceData);
+                String ensgField = sequenceData.split(",")[3];
+
                 String entry = sequenceData.split(",")[0];
-                String isoform = sequenceData.split(",")[5];
-                String nextprotSequence = sequenceData.split(",")[6];
-                String ensg = sequenceData.split(",") [1];
-                String enst = sequenceData.split(",") [2];
-                String ensp = sequenceData.split(",") [3];
-                String enspSequence = sequenceData.split(",")[4];
+                String isoform = "-";
+                String nextprotSequence = "-";
+                String ensg = "NO_NP_ENSG";
+                String enst = "NO_ENSEMBL_ENST";
+                String ensp = "NO_ENSEMBL_ENSP";
+                String enspSequence = "-";
+
+                if(!ensgField.equals("NO_NP_ENSG")) {
+                    isoform = sequenceData.split(",")[1];
+                    nextprotSequence = sequenceData.split(",")[2];
+                    ensg = sequenceData.split(",") [3];
+
+                    enst = sequenceData.split(",") [4];
+
+                    if(!enst.equals("NO_ENSEMBL_ENST")) {
+                        if(sequenceData.split(",").length > 5) {
+                            ensp = sequenceData.split(",") [5];
+                            if(sequenceData.split(",").length > 6) {
+                                enspSequence = sequenceData.split(",")[6];
+                            }
+                        }
+                    }
+
+                }
 
                 String[] sequences = new String[2];
-                sequences[0] = enspSequence;
-                sequences[1] = nextprotSequence;
+                sequences[0] = nextprotSequence;
+                sequences[1] = enspSequence;
 
                 // Updates the sequence map
                 sequenceMap.put(isoform, sequences);
@@ -119,7 +140,7 @@ public class IOSequenceMappingServiceImpl implements SequenceMappingService {
 
         String nextprotSequence = sequenceMap.get(isoform)[0];
         String enspSequence = sequenceMap.get(isoform)[1];
-        if(nextprotSequence == null || enspSequence == null) {
+        if(nextprotSequence == null || enspSequence == null || nextprotSequence == "-" || enspSequence == "-") {
             return null;
         }
 
@@ -191,15 +212,20 @@ public class IOSequenceMappingServiceImpl implements SequenceMappingService {
                 .stream()
                 .map(isoform -> {
                     SequenceMappingProfile mappingProfile = getMappingProfile(isoform);
+                    String ensp = mappingProfile != null ? mappingProfile.getEnsp() : "-";
+                    int offset = mappingProfile != null ? mappingProfile.getOffset() : -3;
+                    String alignmentResult = mappingProfile != null ? mappingProfile.getAlignmentResults() : "ALIGNMENT NOT POSSIBLE";
+                    String npSeq = sequenceMap.get(isoform) != null ? sequenceMap.get(isoform)[0] : "NO_NP_SEQ";
+                    String enspSeq = sequenceMap.get(isoform) != null ? sequenceMap.get(isoform)[1] : "NO_ENSP_SEQ";
+
                     String ensg = ensgMap.get(isoform);
-                    String enst = enspMap.get(isoform);
+                    String enst = enstMap.get(isoform);
                     return entry + ","
                             + ensg + ","
                             + enst + ","
-                            + isoform + "," + sequenceMap.get(isoform)[0]
-                            + "," + mappingProfile.getEnsp() + "," + sequenceMap.get(isoform)[1] + ","
-                            + sequenceComaprison(mappingProfile.getOffset()) + "," +
-                            mappingProfile.getAlignmentResults();
+                            + isoform + "," + npSeq
+                            + "," + ensp + "," + enspSeq + ","
+                            + sequenceComaprison(offset) + "," + alignmentResult;
                 })
                 .collect(Collectors.toList());
             results.addAll(result);
@@ -217,6 +243,6 @@ public class IOSequenceMappingServiceImpl implements SequenceMappingService {
         } else if(offset == -2) {
             return "DIFFERENT_SEQUENCES";
         }
-        return "SOMETHING_WRONG";
+        return "-";
     }
 }
