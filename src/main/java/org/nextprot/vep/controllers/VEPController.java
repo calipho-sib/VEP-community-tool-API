@@ -30,6 +30,7 @@ public class VEPController {
      * @param variantRequest  List of variants in a given neXtProt isoform in the form of (location, originalAA, variantAA)
      * @return SIFT and Polyphen values for the requested variants
      */
+    @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/vep-api/vep-results")
     public List<ProteinVariant> getVEPResults(@RequestBody ProteinVariantRequest variantRequest) {
         return vepapiService.getVEPResults(variantRequest.getIsoform(), variantRequest.getVariants());
