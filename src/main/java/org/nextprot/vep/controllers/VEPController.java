@@ -42,6 +42,7 @@ public class VEPController {
      * @param entry
      * @return List<SequenceMappingProfile>
      */
+    @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/vep-api/mapping-isoforms/{entry}")
     public List<SequenceMappingProfile> getMappableIsoforms(@PathVariable String entry) {
         return sequenceMappingService.getMappingProfiles(entry);
