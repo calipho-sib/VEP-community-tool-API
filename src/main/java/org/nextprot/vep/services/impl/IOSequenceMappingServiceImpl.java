@@ -192,6 +192,7 @@ public class IOSequenceMappingServiceImpl implements SequenceMappingService {
             return entryIsoformMap.get(entry)
                     .stream()
                     .map(isoform -> getMappingProfile(isoform))
+                    .filter(isorofm -> isorofm != null)
                     .collect(Collectors.toList());
         }
     }
