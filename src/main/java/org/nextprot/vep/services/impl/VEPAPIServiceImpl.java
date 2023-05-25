@@ -2,6 +2,7 @@ package org.nextprot.vep.services.impl;
 
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -23,6 +24,8 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -51,8 +54,16 @@ public class VEPAPIServiceImpl implements VEPAPIService {
     void initialize() {
         httpClient = HttpClients.createDefault();
         httpPost = new HttpPost(VEPRESTEndpoint);
-        httpPost.setHeader("Accept", "application/json");
-        httpPost.setHeader("Content-type", "application/json");
+        try {
+            URI uri = new URIBuilder(httpPost.getURI())
+                    .addParameter("ambiguous_hgvs", "1")
+                    .build();
+            httpPost.setURI(uri);
+            httpPost.setHeader("Accept", "application/json");
+            httpPost.setHeader("Content-type", "application/json");
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -65,6 +76,7 @@ public class VEPAPIServiceImpl implements VEPAPIService {
         // Call the mapping service to get the ENSP mappings
         SequenceMappingProfile mappingProfile = sequenceMappingService.getMappingProfile(isoform);
         String ensp = mappingProfile.getEnsp();
+        String enst = mappingProfile.getEnst();
 
         // Maps the nextprot isoform positions into ENSP HGVS identifiers
         Map<String, ProteinVariant> proteinVariantMap = new HashMap<>();
@@ -79,7 +91,7 @@ public class VEPAPIServiceImpl implements VEPAPIService {
             try {
                 String enspString = ensp + ".1:p." + aminoAcidService.getThreeLetterCode(originalAminoAcid) + ensemblPosition;
                 // Have to handle substitution and deletion
-                if(variantAminoAcid.equals(AMINO_ACID_DELETION)) {
+                if (variantAminoAcid.equals(AMINO_ACID_DELETION)) {
                     enspString += AMINO_ACID_DELETION;
                 } else {
                     enspString += aminoAcidService.getThreeLetterCode(variantAminoAcid);
@@ -104,7 +116,7 @@ public class VEPAPIServiceImpl implements VEPAPIService {
 
             JsonParser jsonParser = new JacksonJsonParser();
             // It can return error instead of a list of predictions
-            if(jsonResponse.contains("error")) {
+            if (jsonResponse.contains("error")) {
                 logger.error(jsonParser.parseMap(jsonResponse).get("error").toString());
                 return new ArrayList<>();
             }
@@ -113,7 +125,7 @@ public class VEPAPIServiceImpl implements VEPAPIService {
             e.printStackTrace();
         }
 
-        if(VEPResponse == null) {
+        if (VEPResponse == null) {
             logger.error("Could not get the response from ensembl");
             return new ArrayList<>();
         }
@@ -121,48 +133,46 @@ public class VEPAPIServiceImpl implements VEPAPIService {
         // Adds the SIFT and polyphen values to the variants
         for (Object vepResponse : VEPResponse) {
             System.out.println(vepResponse.toString());
-            Optional<Object> consequence = ((List)((Map)vepResponse).get("transcript_consequences"))
+            Optional<Object> consequence = ((List) ((Map) vepResponse).get("transcript_consequences"))
                     .stream()
-                    .filter(item -> "protein_coding".equals(((Map)item).get("biotype")) && ((List)((Map)item).get("consequence_terms")).contains("missense_variant") )
+                    .filter(item -> "protein_coding".equals(((Map) item).get("biotype")) &&
+                            ((List) ((Map) item).get("consequence_terms")).contains("missense_variant") &&
+                            enst.equals(((Map) item).get("transcript_id")))
                     .findFirst();
-            if(consequence.isPresent()) {
+            if (consequence.isPresent()) {
                 Map consequenceMap = (Map) consequence.get();
                 double siftScore = -1;
-                if(consequenceMap.get("sift_score") != null) {
-                     if(consequenceMap.get("sift_score").equals(0) || consequenceMap.get("sift_score").equals(1)) {
-                         siftScore = (Integer) consequenceMap.get("sift_score");
-                     } else {
-                         siftScore = (double) consequenceMap.get("sift_score");
-                     }
-                } else {
-                    continue;
+                if (consequenceMap.get("sift_score") != null) {
+                    if (consequenceMap.get("sift_score").equals(0) || consequenceMap.get("sift_score").equals(1)) {
+                        siftScore = (Integer) consequenceMap.get("sift_score");
+                    } else {
+                        siftScore = (double) consequenceMap.get("sift_score");
+                    }
+                    String siftPrediction = (String) consequenceMap.get("sift_prediction");
+                    proteinVariantMap.get(((Map) vepResponse).get("id")).setSift(siftScore);
+                    proteinVariantMap.get(((Map) vepResponse).get("id")).setSiftPrediction(siftPrediction);
                 }
-                String siftPrediction = (String) consequenceMap.get("sift_prediction");
 
                 double polyphenScore = -1;
-                if(consequenceMap.get("polyphen_score") != null) {
-                    if( consequenceMap.get("polyphen_score").equals(0) || consequenceMap.get("polyphen_score").equals(1)) {
+                if (consequenceMap.get("polyphen_score") != null) {
+                    if (consequenceMap.get("polyphen_score").equals(0) || consequenceMap.get("polyphen_score").equals(1)) {
                         polyphenScore = (Integer) consequenceMap.get("polyphen_score");
                     } else {
                         polyphenScore = (double) consequenceMap.get("polyphen_score");
                     }
-                } else {
-                    continue;
+                    String polyphenPrediction = (String) consequenceMap.get("polyphen_prediction");
+                    proteinVariantMap.get(((Map) vepResponse).get("id")).setPolyphen(polyphenScore);
+                    proteinVariantMap.get(((Map) vepResponse).get("id")).setPolyphenPrediction(polyphenPrediction);
                 }
-                String polyphenPrediction = (String) consequenceMap.get("polyphen_prediction");
 
-                proteinVariantMap.get(((Map)vepResponse).get("id")).setSift(siftScore);
-                proteinVariantMap.get(((Map)vepResponse).get("id")).setSiftPrediction(siftPrediction);
-                proteinVariantMap.get(((Map)vepResponse).get("id")).setPolyphen(polyphenScore);
-                proteinVariantMap.get(((Map)vepResponse).get("id")).setPolyphenPrediction(polyphenPrediction);
-                proteinVariantMap.get(((Map)vepResponse).get("id")).setStatus(ProteinVariant.RESULTS_FOUND);
+                proteinVariantMap.get(((Map) vepResponse).get("id")).setStatus(ProteinVariant.RESULTS_FOUND);
             }
         }
 
         // Append errors for the variants without consequence results from VEP
         proteinVariantMap.values()
                 .stream()
-                .filter(variant -> variant.getStatus() == null)
+                .filter(variant -> variant.getSift() == -1 && variant.getPolyphen() == -1)
                 .forEach(variant -> variant.setStatus(ProteinVariant.ERROR));
 
         logger.info("Succesfully computed VEP results for variants: " + logString);

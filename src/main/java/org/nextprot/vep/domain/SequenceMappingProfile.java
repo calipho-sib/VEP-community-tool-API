@@ -11,6 +11,8 @@ import java.io.Serializable;
  */
 public class SequenceMappingProfile implements Serializable {
 
+    String enst;
+
     String ensp;
 
     String isoform;
@@ -25,6 +27,8 @@ public class SequenceMappingProfile implements Serializable {
         this.ensp = ensp;
     }
 
+    public void setEnst(String enst) { this.enst = enst; }
+
     public void setIsoform(String isoform) {
         this.isoform = isoform;
     }
@@ -32,6 +36,8 @@ public class SequenceMappingProfile implements Serializable {
     public String getEnsp() {
         return this.ensp;
     }
+
+    public String getEnst() { return  this.enst; }
 
     public String getIsoform() { return this.isoform; }
 

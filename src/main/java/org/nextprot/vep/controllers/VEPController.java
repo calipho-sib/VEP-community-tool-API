@@ -30,7 +30,6 @@ public class VEPController {
      * @param variantRequest  List of variants in a given neXtProt isoform in the form of (location, originalAA, variantAA)
      * @return SIFT and Polyphen values for the requested variants
      */
-    @CrossOrigin(origins = "*")
     @PostMapping("/vep-api/vep-results")
     public List<ProteinVariant> getVEPResults(@RequestBody ProteinVariantRequest variantRequest) {
         return vepapiService.getVEPResults(variantRequest.getIsoform(), variantRequest.getVariants());
@@ -42,7 +41,6 @@ public class VEPController {
      * @param entry
      * @return List<SequenceMappingProfile>
      */
-    @CrossOrigin(origins = "*")
     @GetMapping("/vep-api/mapping-isoforms/{entry}")
     public List<SequenceMappingProfile> getMappableIsoforms(@PathVariable String entry) {
         return sequenceMappingService.getMappingProfiles(entry);

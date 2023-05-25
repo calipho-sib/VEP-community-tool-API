@@ -146,6 +146,7 @@ public class IOSequenceMappingServiceImpl implements SequenceMappingService {
 
         SequenceMappingProfile sequenceMappingProfile = new SequenceMappingProfile();
         sequenceMappingProfile.setEnsp(enspMap.get(isoform));
+        sequenceMappingProfile.setEnst(enstMap.get(isoform));
         sequenceMappingProfile.setIsoform(isoform);
         if(nextprotSequence.equals(enspSequence)) {
             logger.info("Exact Match: NP" + nextprotSequence.length() + "ENSP" + enspSequence);
