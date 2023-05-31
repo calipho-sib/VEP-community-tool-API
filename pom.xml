@@ -10,7 +10,7 @@
     </parent>
     <groupId>org.nextprot</groupId>
     <artifactId>vep</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.2-SNAPSHOT</version>
     <name>vep</name>
     <description>Mapping service between isoform and EnsEMBL sequences</description>
     <properties>
