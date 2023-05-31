@@ -13,9 +13,9 @@ public class ProteinVariant {
 
     private String variantAminoAcid;
 
-    private double sift = -1;
+    private String sift = "-";
 
-    private double polyphen = -1;
+    private String polyphen = "-";
 
     private String siftPrediction;
 
@@ -55,11 +55,11 @@ public class ProteinVariant {
         return  this.variantAminoAcid;
     }
 
-    public double getSift() {
+    public String getSift() {
         return this.sift;
     }
 
-    public double getPolyphen(){
+    public String getPolyphen(){
         return this.polyphen;
     }
 
@@ -75,11 +75,11 @@ public class ProteinVariant {
         this.enspPosition = enspPosition;
     }
 
-    public void setSift(double sift) {
+    public void setSift(String sift) {
         this.sift = sift;
     }
 
-    public void setPolyphen(double polyphen) {
+    public void setPolyphen(String polyphen) {
         this.polyphen = polyphen;
     }
 

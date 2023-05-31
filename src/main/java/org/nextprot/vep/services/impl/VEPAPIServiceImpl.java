@@ -141,27 +141,29 @@ public class VEPAPIServiceImpl implements VEPAPIService {
                     .findFirst();
             if (consequence.isPresent()) {
                 Map consequenceMap = (Map) consequence.get();
-                double siftScore = -1;
+                double siftScore;
                 if (consequenceMap.get("sift_score") != null) {
                     if (consequenceMap.get("sift_score").equals(0) || consequenceMap.get("sift_score").equals(1)) {
                         siftScore = (Integer) consequenceMap.get("sift_score");
                     } else {
                         siftScore = (double) consequenceMap.get("sift_score");
                     }
+                    //String siftScore = (String) consequenceMap.get("sift_score");
                     String siftPrediction = (String) consequenceMap.get("sift_prediction");
-                    proteinVariantMap.get(((Map) vepResponse).get("id")).setSift(siftScore);
+                    proteinVariantMap.get(((Map) vepResponse).get("id")).setSift(String.valueOf(siftScore));
                     proteinVariantMap.get(((Map) vepResponse).get("id")).setSiftPrediction(siftPrediction);
                 }
 
-                double polyphenScore = -1;
+                double polyphenScore;
                 if (consequenceMap.get("polyphen_score") != null) {
                     if (consequenceMap.get("polyphen_score").equals(0) || consequenceMap.get("polyphen_score").equals(1)) {
                         polyphenScore = (Integer) consequenceMap.get("polyphen_score");
                     } else {
                         polyphenScore = (double) consequenceMap.get("polyphen_score");
                     }
+                    //String polyphenScore = (String) consequenceMap.get("polyphen_score");
                     String polyphenPrediction = (String) consequenceMap.get("polyphen_prediction");
-                    proteinVariantMap.get(((Map) vepResponse).get("id")).setPolyphen(polyphenScore);
+                    proteinVariantMap.get(((Map) vepResponse).get("id")).setPolyphen(String.valueOf(polyphenScore));
                     proteinVariantMap.get(((Map) vepResponse).get("id")).setPolyphenPrediction(polyphenPrediction);
                 }
 
@@ -172,7 +174,7 @@ public class VEPAPIServiceImpl implements VEPAPIService {
         // Append errors for the variants without consequence results from VEP
         proteinVariantMap.values()
                 .stream()
-                .filter(variant -> variant.getSift() == -1 && variant.getPolyphen() == -1)
+                .filter(variant -> variant.getSift() == null && variant.getPolyphen() == null)
                 .forEach(variant -> variant.setStatus(ProteinVariant.ERROR));
 
         logger.info("Succesfully computed VEP results for variants: " + logString);
