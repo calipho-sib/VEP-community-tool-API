@@ -3,6 +3,7 @@ package org.nextprot.vep.services;
 import org.nextprot.vep.domain.SequenceMappingProfile;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Loads the sequence profile for given sequence pair and provides the best possible mapping of a given
@@ -11,12 +12,13 @@ import java.util.List;
  */
 public interface SequenceMappingService {
     /**
-     * Returns the mapping profile for a given isoform
-     * i.e how the nextprot isoform is mapped with a given ENSP sequence
+     * Returns the mapping profiles for a given isoform
+     * i.e how the nextprot isoform is mapped with ENST, ENSP sequences
+     * Note: There can be multiple profiles for a given isoform
      * @param isoform
      * @return SequenceMappingProfile
      */
-    SequenceMappingProfile getMappingProfile(String isoform);
+    List<SequenceMappingProfile> getMappingProfilesForIsoform(String isoform);
 
     /**
      * Returns a list of sequence mapping profiles of the isoforms of a given entry

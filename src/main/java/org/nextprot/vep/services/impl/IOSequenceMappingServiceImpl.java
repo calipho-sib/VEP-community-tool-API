@@ -1,22 +1,17 @@
 package org.nextprot.vep.services.impl;
 
-import jaligner.Alignment;
 import org.nextprot.vep.domain.SequenceMappingProfile;
 import org.nextprot.vep.services.SequenceMappingService;
-import org.nextprot.vep.utils.PamAligner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ResourceUtils;
 
 import javax.annotation.PostConstruct;
 import java.io.*;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,11 +26,12 @@ public class IOSequenceMappingServiceImpl implements SequenceMappingService {
     @Value("${SEQUENCE_DATA_FILE}")
     private String sequenceDataFilename;
 
-    @Autowired
+    final
     ResourceLoader resourceLoader;
 
-    // Map to keep the sequences for isoforms
-    private Map<String, String[]> sequenceMap = new HashMap<>();
+    // Map to keep the isoform and ENSP sequences for isoform
+    // Note that there can be multiple ENSPs for a given isoform
+    private Map<String, List<SequenceMappingProfile>> sequenceMap = new HashMap<>();
 
     // Map to keep ensps for isoforms
     private Map<String, String> enspMap = new HashMap<>();
@@ -48,6 +44,10 @@ public class IOSequenceMappingServiceImpl implements SequenceMappingService {
 
     // Map to keep isoforms for entries
     private Map<String, List<String>> entryIsoformMap = new HashMap<>();
+
+    public IOSequenceMappingServiceImpl(ResourceLoader resourceLoader) {
+        this.resourceLoader = resourceLoader;
+    }
 
 
     @PostConstruct
@@ -74,6 +74,10 @@ public class IOSequenceMappingServiceImpl implements SequenceMappingService {
                 String ensp = "NO_ENSEMBL_ENSP";
                 String enspSequence = "-";
 
+                if(entry.equals("NX_P06213")) {
+                    int i = 0;
+                }
+
                 if(!ensgField.equals("NO_NP_ENSG")) {
                     isoform = sequenceData.split(",")[1];
                     nextprotSequence = sequenceData.split(",")[2];
@@ -92,34 +96,20 @@ public class IOSequenceMappingServiceImpl implements SequenceMappingService {
 
                 }
 
-                String[] sequences = new String[2];
-                sequences[0] = nextprotSequence;
-                sequences[1] = enspSequence;
+                SequenceMappingProfile sequenceMappingProfile = new SequenceMappingProfile
+                        .SequenceMappingProfileBuilder()
+                        .ensg(ensg)
+                        .enst(enst)
+                        .ensp(ensp)
+                        .enspSequence(enspSequence)
+                        .isoform(isoform)
+                        .isoformSequence(nextprotSequence)
+                        .build();
 
                 // Updates the sequence map
-                sequenceMap.put(isoform, sequences);
-
-                // Updates the ensg map
-                if(ensg != null) {
-                    ensgMap.put(isoform, ensg);
-                }
-
-                // Updates the enst map
-                if(enst != null) {
-                    enstMap.put(isoform, enst);
-                }
-
-                // Updates the ensp map
-                enspMap.put(isoform, ensp);
-
-                // Updates the entry isoform map
-                if(entryIsoformMap.get(entry) != null) {
-                    entryIsoformMap.get(entry).add(isoform);
-                } else {
-                    List<String> isoformList = new ArrayList<>();
-                    isoformList.add(isoform);
-                    entryIsoformMap.put(entry, isoformList);
-                }
+                List<SequenceMappingProfile> mappingProfileList = sequenceMap.getOrDefault(entry, new ArrayList<>());
+                mappingProfileList.add(sequenceMappingProfile);
+                sequenceMap.put(entry, mappingProfileList);
 
                 loadedIsoforms++;
             }
@@ -133,68 +123,29 @@ public class IOSequenceMappingServiceImpl implements SequenceMappingService {
 
     @Override
     @Cacheable(key= "#isoform", sync = true)
-    public SequenceMappingProfile getMappingProfile(String isoform) {
-        if(!sequenceMap.keySet().contains(isoform)) {
+    public List<SequenceMappingProfile> getMappingProfilesForIsoform(String isoform) {
+        // Derive the entry
+        String entry = isoform.split("-")[0];
+
+        List<SequenceMappingProfile> mappingProfiles = sequenceMap.get(entry);
+        if(mappingProfiles == null) {
             return null;
         }
 
-        String nextprotSequence = sequenceMap.get(isoform)[0];
-        String enspSequence = sequenceMap.get(isoform)[1];
-        if(nextprotSequence == null || enspSequence == null || nextprotSequence == "-" || enspSequence == "-") {
-            return null;
-        }
-
-        SequenceMappingProfile sequenceMappingProfile = new SequenceMappingProfile();
-        sequenceMappingProfile.setEnsp(enspMap.get(isoform));
-        sequenceMappingProfile.setEnst(enstMap.get(isoform));
-        sequenceMappingProfile.setIsoform(isoform);
-        if(nextprotSequence.equals(enspSequence)) {
-            logger.info("Exact Match: NP" + nextprotSequence.length() + "ENSP" + enspSequence);
-            sequenceMappingProfile.setOffset(0);
-        } else if(enspSequence.contains(nextprotSequence)) {
-            // ensp sequence is a substring of nextprot sequence
-            logger.info("NP substring: NP " + nextprotSequence + " ENSP " + enspSequence);
-            sequenceMappingProfile.setOffset(enspSequence.indexOf(nextprotSequence));
-        } else if(nextprotSequence.contains(enspSequence)) {
-            // Nextprot sequence is a substring of ensp sequence
-            logger.info("ENSP substring: NP " + nextprotSequence + " ENSP " + enspSequence);
-            sequenceMappingProfile.setOffset(-1);
-        } else {
-            logger.info("Different sequences: NP " + nextprotSequence + " ENSP " + enspSequence);
-            // Have to do the alignment
-            PamAligner aligner = new PamAligner("nextprot", nextprotSequence, "ensp", enspSequence);
-            Alignment alignment = aligner.getAlignment();
-            String alignmentResult = aligner.getS1Identities() + "," + aligner.getS1InnerGapCount() + "," +
-                    aligner.getS2InnerGapCount() + "," + aligner.getInnerGapCount() + "," +
-                    alignment.getLength() + "," + alignment.getIdentity() + "," +
-                    alignment.getSimilarity() + "," + alignment.getStart1() + "," +
-                    alignment.getStart2() + "," + alignment.getGaps1() + "," +
-                    alignment.getGaps2() + "," + alignment.getScore() + "," +
-                    alignment.getScoreWithNoTerminalGaps()  + "," +
-                    new String(alignment.getSequence1()) + "," +
-                    new String(alignment.getMarkupLine()) + "," +
-                    new String(alignment.getSequence2());
-            logger.info("NP seq length " + nextprotSequence.length() + " ENSP seq length " + enspSequence);
-            sequenceMappingProfile.setOffset(-2);
-            sequenceMappingProfile.setAlignmentResults(alignmentResult);
-        }
-
-        return sequenceMappingProfile;
+        return mappingProfiles.stream()
+                .filter(mappingProfile -> isoform.equals(mappingProfile.getIsoform()))
+                .collect(Collectors.toList());
     }
 
     @Override
     @Cacheable(key= "#entry", sync = true)
     public List<SequenceMappingProfile> getMappingProfiles(String entry) {
-        List<String> isoforms = entryIsoformMap.get(entry);
-        if(isoforms == null) {
+        List<SequenceMappingProfile> mappingProfiles = sequenceMap.get(entry);
+        if(mappingProfiles == null) {
             logger.info("No isoforms found for the given entry " + entry);
             return new ArrayList<>();
         } else {
-            return entryIsoformMap.get(entry)
-                    .stream()
-                    .map(isoform -> getMappingProfile(isoform))
-                    .filter(isorofm -> isorofm != null)
-                    .collect(Collectors.toList());
+            return mappingProfiles;
         }
     }
 
@@ -208,7 +159,7 @@ public class IOSequenceMappingServiceImpl implements SequenceMappingService {
      */
     public String getAllMappingProfiles() {
         List<String> results = new ArrayList<>();
-        for(String entry: entryIsoformMap.keySet()){
+        /*for(String entry: entryIsoformMap.keySet()){
             logger.info("Processing entry " + entry);
             List<String> result = entryIsoformMap.get(entry)
                 .stream()
@@ -231,7 +182,7 @@ public class IOSequenceMappingServiceImpl implements SequenceMappingService {
                 })
                 .collect(Collectors.toList());
             results.addAll(result);
-        }
+        }*/
         return String.join("\n", results);
     }
 
