@@ -1,11 +1,20 @@
 package org.nextprot.vep.domain;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Represents a single variant position on a nextprot isoform
  */
 public class ProteinVariant {
 
     private int nextprotPosition;
+
+    private List<String> enstMappings;
+
+    private List<String> enspMapping;
+
+    private List<String> requestVariants;
 
     private int enspPosition;
 
@@ -20,6 +29,8 @@ public class ProteinVariant {
     private String siftPrediction;
 
     private String polyphenPrediction;
+
+    private String resultEnst;
 
     private VariantType type;
 
@@ -37,10 +48,21 @@ public class ProteinVariant {
         this.nextprotPosition = position;
         this.originalAminoAcid = originalAminoAcid;
         this.variantAminoAcid = variantAminoAcid;
+        this.enspMapping = new ArrayList<>();
+        this.enstMappings = new ArrayList<>();
+        this.requestVariants = new ArrayList<>();
     }
 
     public int getNextprotPosition() {
         return this.nextprotPosition;
+    }
+
+    public List<String> getEnstMappings() { return this.enstMappings; }
+
+    public List<String> getEnspMappings() { return this.enspMapping; }
+
+    public List<String> getRequestVariants() {
+        return requestVariants;
     }
 
     public int getEnspPosition() {
@@ -70,6 +92,20 @@ public class ProteinVariant {
     public String getStatus() {
         return this.status;
     }
+
+    public String getResultEnst() {
+        return resultEnst;
+    }
+
+    public void setResultEnst(String resultEnst) {
+        this.resultEnst = resultEnst;
+    }
+
+    public void addEnstMapping(String enst) { this.enstMappings.add(enst); }
+
+    public void addEnspMapping(String ensp) { this.enspMapping.add(ensp); }
+
+    public void addHGVSVariant(String hgvs) { this.requestVariants.add(hgvs); }
 
     public void setEnspPosition(int enspPosition) {
         this.enspPosition = enspPosition;
