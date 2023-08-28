@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.boot.json.JacksonJsonParser;
 import org.springframework.boot.json.JsonParser;
 import org.springframework.stereotype.Service;
@@ -40,8 +40,9 @@ public class VEPAPIServiceImpl implements VEPAPIService {
 
     private HttpPost httpPost;
 
-    @Value("${VEP_REST_ENDPOINT}")
-    private String VEPRESTEndpoint;
+    private final Environment environment;
+
+    private final HashMap<String,String> VEPEndpoints = new HashMap<>();
 
     private String AMINO_ACID_DELETION = "del";
 
@@ -51,10 +52,16 @@ public class VEPAPIServiceImpl implements VEPAPIService {
     @Autowired
     AminoAcidService aminoAcidService;
 
+    public VEPAPIServiceImpl(Environment environment) {
+        this.environment = environment;
+        VEPEndpoints.put("VEP_107", this.environment.getProperty("VEP_REST_ENDPOINT_107"));
+        VEPEndpoints.put("VEP_109", this.environment.getProperty("VEP_REST_ENDPOINT_109"));
+    }
+
     @PostConstruct
     void initialize() {
         httpClient = HttpClients.createDefault();
-        httpPost = new HttpPost(VEPRESTEndpoint);
+        httpPost = new HttpPost(VEPEndpoints.get("VEP_109"));
         try {
             URI uri = new URIBuilder(httpPost.getURI())
                     .addParameter("ambiguous_hgvs", "1")
