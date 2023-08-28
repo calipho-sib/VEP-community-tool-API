@@ -9,6 +9,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
 import org.nextprot.vep.domain.ProteinVariant;
+import org.nextprot.vep.domain.ProteinVariantRequest;
 import org.nextprot.vep.domain.SequenceMappingProfile;
 import org.nextprot.vep.domain.TranscriptConsequence;
 import org.nextprot.vep.services.AminoAcidService;
@@ -46,6 +47,8 @@ public class VEPAPIServiceImpl implements VEPAPIService {
 
     private String AMINO_ACID_DELETION = "del";
 
+    private String DEFAULT_VEP_VERSION = "107";
+
     @Autowired
     SequenceMappingService sequenceMappingService;
 
@@ -54,15 +57,19 @@ public class VEPAPIServiceImpl implements VEPAPIService {
 
     public VEPAPIServiceImpl(Environment environment) {
         this.environment = environment;
-        VEPEndpoints.put("VEP_107", this.environment.getProperty("VEP_REST_ENDPOINT_107"));
-        VEPEndpoints.put("VEP_109", this.environment.getProperty("VEP_REST_ENDPOINT_109"));
+        VEPEndpoints.put("107", this.environment.getProperty("VEP_REST_ENDPOINT_107"));
+        VEPEndpoints.put("109", this.environment.getProperty("VEP_REST_ENDPOINT_109"));
     }
 
     @PostConstruct
     void initialize() {
         httpClient = HttpClients.createDefault();
-        httpPost = new HttpPost(VEPEndpoints.get("VEP_109"));
+        createPOSTRequest(DEFAULT_VEP_VERSION);
+    }
+
+    private void createPOSTRequest(String vepVersion) {
         try {
+            httpPost = new HttpPost(VEPEndpoints.get(vepVersion));
             URI uri = new URIBuilder(httpPost.getURI())
                     .addParameter("ambiguous_hgvs", "1")
                     .build();
@@ -75,7 +82,14 @@ public class VEPAPIServiceImpl implements VEPAPIService {
     }
 
     @Override
-    public List<ProteinVariant> getVEPResults(String isoform, List<ProteinVariant> variants) {
+    public List<ProteinVariant> getVEPResults(ProteinVariantRequest vepRequest) {
+
+        String vepVersion = vepRequest.getVersion();
+        if(vepVersion == null) vepVersion = DEFAULT_VEP_VERSION;
+        createPOSTRequest(vepVersion);
+        String isoform = vepRequest.getIsoform();
+        List<ProteinVariant> variants = vepRequest.getVariants();
+
 
         String logString = String.join(",", variants.stream()
                 .map(variant -> variant.getOriginalAminoAcid() + "->" + variant.getVariantAminoAcid())

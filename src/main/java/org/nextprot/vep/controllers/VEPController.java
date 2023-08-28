@@ -33,7 +33,7 @@ public class VEPController {
      */
     @PostMapping("/vep-api/vep-results")
     public List<ProteinVariant> getVEPResults(@RequestBody ProteinVariantRequest variantRequest) {
-        return vepapiService.getVEPResults(variantRequest.getIsoform(), variantRequest.getVariants());
+        return vepapiService.getVEPResults(variantRequest);
     }
 
     /**

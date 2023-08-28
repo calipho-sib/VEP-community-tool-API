@@ -12,12 +12,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest
 public class VEPLocalAPIServiceTest {
 
-    @Qualifier("LocalService")
     @Autowired
     VEPAPIService VEPLocalService;
 
     @Test
-    public void dockerTest() {
-        VEPLocalService.getVEPResults("NX", null);
+    public void vepResultTest() {
+        VEPLocalService.getVEPResults(null);
     }
 }

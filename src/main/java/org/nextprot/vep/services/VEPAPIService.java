@@ -1,6 +1,7 @@
 package org.nextprot.vep.services;
 
 import org.nextprot.vep.domain.ProteinVariant;
+import org.nextprot.vep.domain.ProteinVariantRequest;
 
 import java.util.List;
 
@@ -9,5 +10,5 @@ import java.util.List;
  */
 public interface VEPAPIService {
 
-    List<ProteinVariant> getVEPResults(String isoform, List<ProteinVariant> variants);
+    List<ProteinVariant> getVEPResults(ProteinVariantRequest vepRequest);
 }
